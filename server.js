@@ -1,8 +1,7 @@
-const express = require("express")
+const express = require("express");
 const expressGraphQl = require('express-graphql').graphqlHTTP;
 const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLInt } = require('graphql')
 const app = express();
-
 
 const books = [
     { id: 1, name: 'Harry Potter and the Chamber of Secrets', authorId: 1 },
@@ -13,13 +12,13 @@ const books = [
     { id: 6, name: 'The Return of the King', authorId: 2 },
     { id: 7, name: 'The Way of Shadows', authorId: 3 },
     { id: 8, name: 'Beyond the Shadows', authorId: 3 }
-]
+];
 
 const authors = [
     { id: 1, name: 'J. K. Rowling' },
     { id: 2, name: 'J. R. R. Tolkien' },
     { id: 3, name: 'Brent Weeks' }
-]
+];
 
 const topBooks = [
     { id: 1, name: 'avs' },
@@ -33,7 +32,7 @@ const students = [
     { class: '5', name: 'Tanvir' },
     { class: '5', name: 'Sabbir' },
     { class: '5', name: 'Salman' }
-]
+];
 
 
 const schema = new GraphQLSchema({
@@ -115,10 +114,24 @@ const RootQueryType = new GraphQLObjectType({
             description: 'List of all authors..',
             resolve: () => authors
         },
+        singleAuthor: {
+            type: AuthorType,
+            description: 'Single Author',
+            args: { id: { type: GraphQLInt } },
+            resolve: (parent, args) => authors.find(autor => autor.id === args.id)
+        },
         allStudents: {
             type: new GraphQLList(studentType),
             description: 'All stuendts list in class 5',
             resolve: () => students
+        },
+        book: {
+            type: BookType,
+            description: "A single book",
+            args: {
+                id: { type: GraphQLInt }
+            },
+            resolve: (parent, args) => books.find(book => book.id === args.id)
         }
     })
 })
