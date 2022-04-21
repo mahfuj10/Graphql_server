@@ -125,6 +125,12 @@ const RootQueryType = new GraphQLObjectType({
             description: 'All stuendts list in class 5',
             resolve: () => students
         },
+        singleStuent: {
+            type: studentType,
+            description: "A signle student",
+            args: { name: { type: GraphQLString } },
+            resolve: (parent, args) => students.find(book => book.name === args.name)
+        },
         book: {
             type: BookType,
             description: "A single book",
@@ -136,8 +142,50 @@ const RootQueryType = new GraphQLObjectType({
     })
 })
 
+const RootMutationType = new GraphQLObjectType({
+    name: 'Multation',
+    description: "Root Mutation",
+    fields: () => ({
+        addBook: {
+            type: BookType,
+            description: 'Add a book',
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) },
+                authorId: { type: GraphQLNonNull(GraphQLInt) }
+            },
+            resolve: (parent, args) => {
+                const book = { id: books.length + 1, name: args.name, authorId: args.authorId }
+                books.push(book);
+                return book;
+            }
+        }
+    })
+})
+
+const studentMutation = new GraphQLObjectType({
+    name: "addClassStudent",
+    description: "Student mutation",
+    fields: () => ({
+        addStudent: {
+            type: studentType,
+            description: "Add student on current array",
+            args: {
+                name: { type: GraphQLNonNull(GraphQLString) },
+                class: { type: GraphQLNonNull(GraphQLString) }
+            },
+            resolve: (parent, args) => {
+                const student = { class: args.class, name: args.name }
+                students.push(student);
+                return student;
+            }
+        }
+    })
+})
+
 const newSchema = new GraphQLSchema({
-    query: RootQueryType
+    query: RootQueryType,
+    mutation: RootMutationType,
+    mutation: studentMutation
 });
 
 app.use('/graphql', expressGraphQl({
